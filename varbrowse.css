@@ -1,0 +1,49 @@
+.varbrowse {
+  background-color: #ECF0F1;
+  font-family: comic sans ms, monospace, consolas, courier;
+  padding: 10px;
+  border: 1px solid #333333;
+  color: #333333;
+  display: inline-block;
+}
+
+.string {
+  color: #E74C3C;
+  padding: 0 5px;
+  border: 1px solid #C0392B;
+  background-color: white;
+}
+
+.other {
+  color: black;
+}
+
+.number {
+  color: #9B59B6;
+}
+
+.unknown {
+  color: gray;
+}
+
+.undefined {
+  color: #F9BF3B;
+}
+
+.keyword {
+  color: #0077C0;
+}
+
+.boolean {
+  color: #27AE60;
+}
+
+.null {
+  color: #102770;
+}
+
+.whitespace {}
+
+.operator {
+  color: #1E003D;
+}
