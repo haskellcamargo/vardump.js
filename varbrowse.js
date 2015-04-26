@@ -28,11 +28,9 @@
   /**
    * Helpers and utilities
    */
-  var ident = function(value) {
-    var whitespace = "";
+  var ident = function() {
     for (var i = 0; i < globalScope * 2; i++)
-      whitespace += T_WHITESPACE(value);
-    return whitespace;
+      document.write(T_WHITESPACE);
   }
 
   var eachIndex = function(fn) {
@@ -53,113 +51,113 @@
    * Code generation for each terminal symbol.
    */
   var T_KEYWORD = function(value) {
-    return "<span class='keyword'>" + value + "</span>";
+    document.write("<span class='keyword'>" + value + "</span>");
   };
 
   var T_OTHER = function(value) {
-    return "<span class='other'>" + value + "</span>";
+    document.write("<span class='other'>" + value + "</span>");
   };
 
-  var T_BREAKLINE = function() { return "<br />"; };
+  var T_BREAKLINE = function() { document.write("<br />"); };
 
   var T_STRING = function(value) {
-    return "<span class='string'>\"" + value + "\"</span>";
+    document.write("<span class='string'>\"" + value + "\"</span>");
   };
 
   var T_NUMBER = function(value) {
-    return "<span class='number'>" + value + "</span>";
+    document.write("<span class='number'>" + value + "</span>");
   };
 
   var T_UNDEFINED = function(value) {
-    return "<span class='undefined'>" + value + "</span>";
+    document.write("<span class='undefined'>" + value + "</span>");
   };
 
   var T_BOOLEAN = function(value) {
-    return "<span class='boolean'>" + (value ? "true" : "false") + "</span>";
+    document.write("<span class='boolean'>" + (value ? "true" : "false") + "</span>");
   };
 
   var T_UNKNOWN = function(value) {
-    return "<span class='unknown'>" + value + "</span>";
+    document.write("<span class='unknown'>" + value + "</span>");
   };
 
   var T_NULL = function(value) {
-    return "<span class='null'>" + value + "</span>";
+    document.write("<span class='null'>" + value + "</span>");
   };
 
   var T_WHITESPACE = function() {
-    return "<span class='whitespace'>&nbsp;</span>";
+    document.write("<span class='whitespace'>&nbsp;</span>");
   };
 
   var T_OPERATOR = function(value) {
-    return "<span class='operator'>" + value + "</span>";
+    document.write("<span class='operator'>" + value + "</span>");
   };
 
   var T_FUNCTION = function(value) {
-    return "<span class='function'>" + value + "</span>";
+    document.write("<span class='function'>" + value + "</span>");
   };
 
   /**
    * Terminal symbols.
    */
   var string = function(value) {
-    return T_KEYWORD("string") 
-         + T_OTHER("<") 
-         + T_NUMBER(value.length) 
-         + T_OTHER(">")
-         + T_OTHER("(")
-         + T_STRING(value)
-         + T_OTHER(")")
-         + T_BREAKLINE();
+    T_KEYWORD("string") ;
+    T_OTHER("<");
+    T_NUMBER(value.length);
+    T_OTHER(">");
+    T_OTHER("(");
+    T_STRING(value);
+    T_OTHER(")");
+    T_BREAKLINE();
   };
 
   var number = function(value) {
-    return T_KEYWORD("number")
-         + T_OTHER("(")
-         + T_NUMBER(value)
-         + T_OTHER(")")
-         + T_BREAKLINE();
+    T_KEYWORD("number");
+    T_OTHER("(");
+    T_NUMBER(value);
+    T_OTHER(")");
+    T_BREAKLINE();
   };
 
   var unknown = function(value) {
-    return T_KEYWORD("unknown")
-         + T_UNKNOWN(typeof value)
-         + T_BREAKLINE();
+    T_KEYWORD("unknown");
+    T_UNKNOWN(typeof value);
+    T_BREAKLINE();
   };
 
   var _undefined = function() {
-    return T_UNDEFINED("undefined")
-         + T_BREAKLINE();
+    T_UNDEFINED("undefined");
+    T_BREAKLINE();
   };
 
   var _boolean = function(value) {
-    return T_KEYWORD("boolean")
-         + T_OTHER("(")
-         + T_BOOLEAN(value)
-         + T_OTHER(")")
-         + T_BREAKLINE();
+    T_KEYWORD("boolean");
+    T_OTHER("(");
+    T_BOOLEAN(value);
+    T_OTHER(")");
+    T_BREAKLINE();
   }
 
   var _null = function() {
-    return T_NULL("null")
-         + T_BREAKLINE();
+    T_NULL("null");
+    T_BREAKLINE();
   };
 
   var _function = function(value) {
-    var template = T_KEYWORD("function")
-                 + T_OTHER("(")
-                 + T_BREAKLINE();
+    T_KEYWORD("function");
+    T_OTHER("(");
+    T_BREAKLINE();
 
-    globalScope++
+    globalScope++;
 
-    template += ident()
-              + T_FUNCTION(value.toString())
-              + T_BREAKLINE();
+    ident()
+    T_FUNCTION(value.toString())
+    T_BREAKLINE();
 
     globalScope--;
-    template += ident()
-              + T_OTHER(")")
-              + T_BREAKLINE();
-    return template;
+
+    ident();
+    T_OTHER(")")
+    T_BREAKLINE();
   }
 
   /**
@@ -168,93 +166,87 @@
   var expr = function(value) {
     switch (typeof value) {
       case "string":
-        return string(value);
+        string(value); break;
       case "number":
-        return number(value);
+        number(value); break;
       case "undefined":
-        return _undefined();
+        _undefined(); break;
       case "boolean":
-        return _boolean(value);
+        _boolean(value); break;
       case "function":
-        return _function(value);
+        _function(value); break;
       default:
         if (Array.isArray(value)) { // Match array.
-          return array(value);
+          array(value);
         } else if (value === null) { // Match null.
-          return _null();
+          _null();
         } else if (typeof value === "object") // Match object.
-          return object(value);
+          object(value);
         /* Edge case */
-        return unknown(value);
+        unknown(value);
     }
   };
 
   var array = function(value) {
-    var template = T_KEYWORD("array")
-                 + T_OTHER("<")
-                 + T_NUMBER(value.length)
-                 + T_OTHER(">")
-                 + T_OTHER("(");
+    T_KEYWORD("array")
+    T_OTHER("<")
+    T_NUMBER(value.length)
+    T_OTHER(">")
+    T_OTHER("(");
 
     // Inline-property when empty.
     var empty = value.length === 0;
-    if (!empty) template += T_BREAKLINE();
+    if (!empty) T_BREAKLINE();
 
     globalScope++;
 
     eachIndex(function(index, symbol) {
-      template += ident()
-                + T_OTHER("[")
-                + T_NUMBER(index)
-                + T_OTHER("]")
-                + T_WHITESPACE()
-                + T_OPERATOR("=>")
-                + T_WHITESPACE()
-                + expr(symbol);
+      ident();
+      T_OTHER("[");
+      T_NUMBER(index);
+      T_OTHER("]");
+      T_WHITESPACE();
+      T_OPERATOR("=>");
+      T_WHITESPACE();
+      expr(symbol);
     })(value);
 
     globalScope--;
-    if (!empty) template += ident();
-    template += T_OTHER(")")
-              + T_BREAKLINE();
-
-    return template;
+    if (!empty) ident();
+    
+    T_OTHER(")")
+    T_BREAKLINE();
   }
 
   var object = function(value) {
-    var template = T_KEYWORD("object")
-                 + T_OTHER("<")
-                 + T_NUMBER(Object.keys(value).length)
-                 + T_OTHER(">")
-                 + T_OTHER("(");
+    T_KEYWORD("object")
+    T_OTHER("<")
+    T_NUMBER(Object.keys(value).length)
+    T_OTHER(">")
+    T_OTHER("(");
 
     globalScope++;
     eachObjectIndex(function(key, val) {
-      template += ident()
-                + T_OTHER("[")
-                + T_STRING(key)
-                + T_OTHER("]")
-                + T_WHITESPACE()
-                + T_OPERATOR("=>")
-                + T_WHITESPACE()
-                + expr(val);
+      ident()
+      T_OTHER("[");
+      T_STRING(key);
+      T_OTHER("]");
+      T_WHITESPACE();
+      T_OPERATOR("=>");
+      T_WHITESPACE();
+      expr(val);
     })(value);
 
     globalScope--;
 
-    template += ident()
-              + T_OTHER(")")
-              + T_BREAKLINE();
-
-    return template;
+    ident()
+    T_OTHER(")")
+    T_BREAKLINE();
   }
 
   // Export function.
   window.varbrowse = function(expression) {
     var ref;
-    document.body.appendChild(
-        ref = document.createElement("div")
-      , ref.className = "varbrowse", ref.innerHTML = expr(expression)
-      , ref);
+    expr(expression);
   }
 })();
